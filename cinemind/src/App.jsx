@@ -769,7 +769,8 @@ class SafeProsCons extends Component {
   }
 }
 
-const API   = 'http://127.0.0.1:8000'
+// const API   = 'http://127.0.0.1:8000'       // local development
+const API   = 'https://movie-rec-466x.onrender.com' // production (Vercel deploy)
 const IMG_W = 'https://image.tmdb.org/t/p/w500'
 
 const CATEGORIES = [
