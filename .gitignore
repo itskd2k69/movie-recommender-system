@@ -1,3 +1,41 @@
+# ── Python ──────────────────────────────────────────────
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+
+# ── Environment / Secrets ────────────────────────────────
 .env
-.venv
-__pycache__
+.env.*
+
+# ── Jupyter Notebook checkpoints ────────────────────────
+.ipynb_checkpoints/
+
+# ── Large ML model / data files ──────────────────────────
+*.pkl
+*.csv
+*.h5
+*.hdf5
+
+# ── Node / React (cinemind frontend) ─────────────────────
+node_modules/
+package-lock.json
+cinemind/node_modules/
+cinemind/dist/
+cinemind/build/
+
+# ── VS Code ──────────────────────────────────────────────
+.vscode/
+
+# ── Project-specific files not meant for the repo ────────
+users.json
+running command.txt
+Working/
+diagrams/
+START_CINEMIND.bat
