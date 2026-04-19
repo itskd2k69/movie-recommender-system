@@ -18,8 +18,8 @@ build/
 .ipynb_checkpoints/
 
 # ── Large ML model / data files ──────────────────────────
-*.pkl
-*.csv
+# *.pkl   <- tracked for Render deployment
+# *.csv   <- tracked for Render deployment
 *.h5
 *.hdf5
 
