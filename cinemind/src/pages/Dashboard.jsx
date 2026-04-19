@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 
 // const API = 'http://127.0.0.1:8000'       // local development
-const API = 'https://movie-rec-466x.onrender.com' // production (Vercel deploy)
+const API = 'https://movie-recommender-system-dcma.onrender.com' // production (Vercel deploy)
 
 const GENRE_ICONS = {
   'Action':'💥','Adventure':'🗺️','Animation':'🎨','Comedy':'😂',
