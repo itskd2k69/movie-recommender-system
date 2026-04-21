@@ -770,30 +770,30 @@ class SafeProsCons extends Component {
 }
 
 // const API   = 'http://127.0.0.1:8000'       // local development
-const API   = 'https://movie-recommender-system-dcma.onrender.com' // production (Vercel deploy)
+const API = 'https://movie-recommender-system-dcma.onrender.com' // production (Vercel deploy)
 const IMG_W = 'https://image.tmdb.org/t/p/w500'
 
 const CATEGORIES = [
-  { key: 'trending',    icon: '🔥', label: 'Trending'    },
-  { key: 'popular',     icon: '⚡', label: 'Popular'     },
-  { key: 'top_rated',   icon: '👑', label: 'Top Rated'   },
+  { key: 'trending', icon: '🔥', label: 'Trending' },
+  { key: 'popular', icon: '⚡', label: 'Popular' },
+  { key: 'top_rated', icon: '👑', label: 'Top Rated' },
   { key: 'now_playing', icon: '🎬', label: 'Now Playing' },
-  { key: 'upcoming',    icon: '🎟', label: 'Upcoming'    },
+  { key: 'upcoming', icon: '🎟', label: 'Upcoming' },
 ]
 
 const MOODS = [
-  { label: 'Happy',     icon: '😄', genres: [35, 16, 10751] },
-  { label: 'Thrilled',  icon: '😱', genres: [53, 27, 80]    },
-  { label: 'Romantic',  icon: '❤️', genres: [10749, 18]     },
-  { label: 'Adventure', icon: '🚀', genres: [12, 28, 878]   },
-  { label: 'Emotional', icon: '😢', genres: [18, 10749]     },
-  { label: 'Inspired',  icon: '✨', genres: [99, 36, 18]    },
+  { label: 'Happy', icon: '😄', genres: [35, 16, 10751] },
+  { label: 'Thrilled', icon: '😱', genres: [53, 27, 80] },
+  { label: 'Romantic', icon: '❤️', genres: [10749, 18] },
+  { label: 'Adventure', icon: '🚀', genres: [12, 28, 878] },
+  { label: 'Emotional', icon: '😢', genres: [18, 10749] },
+  { label: 'Inspired', icon: '✨', genres: [99, 36, 18] },
 ]
 
 const GENRE_NAME_TO_ID = {
-  'Action':28,'Adventure':12,'Animation':16,'Comedy':35,'Crime':80,
-  'Documentary':99,'Drama':18,'Fantasy':14,'Horror':27,'Mystery':9648,
-  'Romance':10749,'Science Fiction':878,'Thriller':53,'Western':37,
+  'Action': 28, 'Adventure': 12, 'Animation': 16, 'Comedy': 35, 'Crime': 80,
+  'Documentary': 99, 'Drama': 18, 'Fantasy': 14, 'Horror': 27, 'Mystery': 9648,
+  'Romance': 10749, 'Science Fiction': 878, 'Thriller': 53, 'Western': 37,
 }
 
 // ── localStorage helpers ──────────────────────────────────────────────────────
@@ -802,7 +802,7 @@ function addToRecent(movie) {
     let recent = JSON.parse(localStorage.getItem('cinemind_recent') || '[]')
     recent = [movie, ...recent.filter(m => m.tmdb_id !== movie.tmdb_id)].slice(0, 20)
     localStorage.setItem('cinemind_recent', JSON.stringify(recent))
-  } catch {}
+  } catch { }
 }
 
 function getWatchlist() {
@@ -971,20 +971,49 @@ const Nav = ({ onHome, page, user, onLogout, onDashboard }) => (
 )
 
 // ── SEARCH BOX ────────────────────────────────────────────────────────────────
+// const SearchBox = ({ onSelectId }) => {
+//   const [q, setQ] = useState('')
+//   const [results, setResults] = useState([])
+//   const [loading, setLoading] = useState(false)
+//   const [open, setOpen] = useState(false)
+//   const dq = useDebounce(q, 300)
+//   const ref = useRef()
+
+//   useEffect(() => {
+//     if (dq.length < 2) { setResults([]); setOpen(false); return }
+//     setLoading(true)
+//     get('/tmdb/search', { query: dq })
+//       .then(d => { const items = (d?.results || []).slice(0, 8); setResults(items); setOpen(items.length > 0) })
+//       .catch(() => setResults([]))
+//       .finally(() => setLoading(false))
+//   }, [dq])
+
 const SearchBox = ({ onSelectId }) => {
   const [q, setQ] = useState('')
   const [results, setResults] = useState([])
   const [loading, setLoading] = useState(false)
   const [open, setOpen] = useState(false)
+  const [error, setError] = useState(null)   // ← new
   const dq = useDebounce(q, 300)
   const ref = useRef()
 
   useEffect(() => {
-    if (dq.length < 2) { setResults([]); setOpen(false); return }
+    if (dq.length < 2) { setResults([]); setOpen(false); setError(null); return }
     setLoading(true)
+    setError(null)
     get('/tmdb/search', { query: dq })
-      .then(d => { const items = (d?.results || []).slice(0, 8); setResults(items); setOpen(items.length > 0) })
-      .catch(() => setResults([]))
+      .then(d => {
+        console.log('[SearchBox] raw response:', d)          // ← add this
+        const items = (d?.results || []).slice(0, 8)
+        setResults(items)
+        setOpen(items.length > 0)
+        if (items.length === 0) setError('No results')      // ← shows empty state
+      })
+      .catch(err => {
+        console.error('[SearchBox] fetch error:', err)       // ← was silent before
+        setResults([])
+        setError('Search unavailable — server may be waking up, try again in 30s')
+      })
       .finally(() => setLoading(false))
   }, [dq])
 
@@ -1096,8 +1125,8 @@ const HeroCarousel = ({ movies, onSelect }) => {
 // ── MOOD SECTION ──────────────────────────────────────────────────────────────
 const MoodSection = ({ onSelect }) => {
   const [activeMood, setActiveMood] = useState(null)
-  const [movies, setMovies]         = useState([])
-  const [loading, setLoading]       = useState(false)
+  const [movies, setMovies] = useState([])
+  const [loading, setLoading] = useState(false)
 
   const pickMood = async (mood) => {
     if (activeMood?.label === mood.label) { setActiveMood(null); setMovies([]); return }
@@ -1134,10 +1163,10 @@ const MoodSection = ({ onSelect }) => {
 
 // ── HOME PAGE ─────────────────────────────────────────────────────────────────
 const HomePage = ({ onSelect, user }) => {
-  const [cat, setCat]     = useState('trending')
+  const [cat, setCat] = useState('trending')
   const [movies, setMovies] = useState([])
   const [loading, setLoading] = useState(true)
-  const [hero, setHero]   = useState([])
+  const [hero, setHero] = useState([])
   const [heroLoad, setHeroLoad] = useState(true)
   const [searchMovies, setSearchMovies] = useState(null)
   const [searchQ, setSearchQ] = useState('')
@@ -1147,7 +1176,7 @@ const HomePage = ({ onSelect, user }) => {
   const favGenres = user?.favorite_genres || []
 
   useEffect(() => {
-    get('/home', { category: 'trending', limit: 5 }).then(d => setHero(d || [])).catch(() => {}).finally(() => setHeroLoad(false))
+    get('/home', { category: 'trending', limit: 5 }).then(d => setHero(d || [])).catch(() => { }).finally(() => setHeroLoad(false))
   }, [])
 
   useEffect(() => {
@@ -1163,7 +1192,7 @@ const HomePage = ({ onSelect, user }) => {
       if (!id) return
       get(`/movies/genre/${id}`, { limit: 6 })
         .then(d => setFavData(prev => ({ ...prev, [genre]: Array.isArray(d) ? d : [] })))
-        .catch(() => {})
+        .catch(() => { })
     })
   }, [user?.favorite_genres?.join(',')])
 
@@ -1244,13 +1273,13 @@ const HomePage = ({ onSelect, user }) => {
 
 // ── DETAILS PAGE ──────────────────────────────────────────────────────────────
 const DetailsPage = ({ tmdbId, onSelect }) => {
-  const [details, setDetails]     = useState(null)
-  const [bundle, setBundle]       = useState(null)
+  const [details, setDetails] = useState(null)
+  const [bundle, setBundle] = useState(null)
   const [detailLoad, setDetailLoad] = useState(true)
-  const [recLoad, setRecLoad]     = useState(true)
-  const [tab, setTab]             = useState('tfidf')
+  const [recLoad, setRecLoad] = useState(true)
+  const [tab, setTab] = useState('tfidf')
   const [inWatchlist, setInWatchlist] = useState(false)
-  const [wToast, setWToast]       = useState('')
+  const [wToast, setWToast] = useState('')
 
   // Effect 1: fetch movie details
   useEffect(() => {
@@ -1326,7 +1355,7 @@ const DetailsPage = ({ tmdbId, onSelect }) => {
             <h1 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(32px,5vw,58px)', color: 'var(--white)', letterSpacing: 3, lineHeight: 1.05, marginBottom: 20 }}>{details.title}</h1>
             {details.vote_average > 0 && <Rating value={details.vote_average} />}
             <div style={{ display: 'flex', gap: 16, marginTop: 16, flexWrap: 'wrap', alignItems: 'center' }}>
-              {details.runtime > 0 && <span style={{ fontSize: 12, color: 'var(--text3)' }}>⏱ {Math.floor(details.runtime/60)}h {details.runtime%60}m</span>}
+              {details.runtime > 0 && <span style={{ fontSize: 12, color: 'var(--text3)' }}>⏱ {Math.floor(details.runtime / 60)}h {details.runtime % 60}m</span>}
               {details.vote_count > 0 && <span style={{ fontSize: 12, color: 'var(--text3)' }}>🗳 {details.vote_count?.toLocaleString()} votes</span>}
               {/* Watchlist button */}
               <button onClick={handleWatchlist}
@@ -1407,11 +1436,16 @@ const DetailsPage = ({ tmdbId, onSelect }) => {
 
 // ── ROOT APP ──────────────────────────────────────────────────────────────────
 export default function App() {
+  // Wake the Render server on mount (free tier sleeps after 15 min)
+  useEffect(() => {
+    fetch(`${API}/health`).catch(() => { })  // silent — just wakes it up
+  }, [])
+
   const [authPage, setAuthPage] = useState('login')
   const [user, setUser] = useState(() => {
     try { return JSON.parse(localStorage.getItem('cinemind_user')) } catch { return null }
   })
-  const [page, setPage]     = useState('home')
+  const [page, setPage] = useState('home')
   const [movieId, setMovieId] = useState(null)
 
   const goDetails = useCallback(id => {
@@ -1448,8 +1482,8 @@ export default function App() {
     <>
       <Nav onHome={goHome} page={page} user={user} onLogout={onLogout} onDashboard={goDashboard} />
       <main key={`${page}-${movieId}`} className="anim-fade-in">
-        {page === 'home'      && <HomePage onSelect={goDetails} user={user} />}
-        {page === 'details'   && <DetailsPage tmdbId={movieId} onSelect={goDetails} />}
+        {page === 'home' && <HomePage onSelect={goDetails} user={user} />}
+        {page === 'details' && <DetailsPage tmdbId={movieId} onSelect={goDetails} />}
         {page === 'dashboard' && <Dashboard user={user} onSelectMovie={id => { goDetails(id) }} onUpdateUser={onUpdateUser} onBack={goHome} />}
       </main>
     </>

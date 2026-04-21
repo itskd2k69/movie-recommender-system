@@ -958,6 +958,14 @@ async def recommend_genre(tmdb_id: int = Query(...), limit: int = Query(18, ge=1
     return [c for c in cards if c.tmdb_id != tmdb_id]
 
 
+@app.get("/tmdb/search")
+async def tmdb_search(
+    query: str = Query(..., min_length=1),
+    page: int  = Query(1, ge=1, le=10),
+):
+    return await tmdb_search_movies(query=query, page=page)
+
+
 @app.get("/recommend/tfidf")
 async def recommend_tfidf(title: str = Query(..., min_length=1), top_n: int = Query(10, ge=1, le=50)):
     recs = tfidf_recommend_titles(title, top_n=top_n)
