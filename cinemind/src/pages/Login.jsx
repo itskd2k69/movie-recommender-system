@@ -95,10 +95,10 @@ export default function Login({ onLogin, onGoRegister }) {
           </div>
 
           {/* Fields */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            <Field label="Email" type="email" value={email} onChange={setEmail} placeholder="you@gmail.com" />
-            <Field label="Password" type="password" value={password} onChange={setPassword} placeholder="••••••••" onEnter={submit} />
-          </div>
+          <form autoComplete="off" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <Field label="Email" type="email" value={email} onChange={setEmail} placeholder="you@gmail.com" autoComplete="off" />
+            <Field label="Password" type="password" value={password} onChange={setPassword} placeholder="••••••••" onEnter={submit} autoComplete="current-password" />
+          </form>
 
           {/* Submit */}
           <button
@@ -118,7 +118,7 @@ export default function Login({ onLogin, onGoRegister }) {
   )
 }
 
-function Field({ label, type, value, onChange, placeholder, onEnter }) {
+function Field({ label, type, value, onChange, placeholder, onEnter, autoComplete = 'off' }) {
   const [focused, setFocused] = useState(false)
   return (
     <div>
@@ -127,6 +127,7 @@ function Field({ label, type, value, onChange, placeholder, onEnter }) {
         type={type} value={value}
         onChange={e => onChange(e.target.value)}
         placeholder={placeholder}
+        autoComplete={autoComplete}
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
         onKeyDown={e => e.key === 'Enter' && onEnter?.()}

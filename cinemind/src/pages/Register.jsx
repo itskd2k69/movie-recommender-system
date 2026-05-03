@@ -385,9 +385,9 @@ export default function Register({ onRegister, onGoLogin }) {
             <p style={{ color: 'var(--text3)', fontSize: 13, marginTop: 4 }}>Create your account</p>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <form autoComplete="off" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             {/* Name */}
-            <Field label="Full Name *" type="text" value={form.name} onChange={v => set('name', v)} placeholder="John Doe" />
+            <Field label="Full Name *" type="text" value={form.name} onChange={v => set('name', v)} placeholder="John Doe" autoComplete="off" />
 
             {/* Email */}
             <div>
@@ -397,6 +397,7 @@ export default function Register({ onRegister, onGoLogin }) {
                   type="email" value={form.email}
                   onChange={e => set('email', e.target.value)}
                   placeholder="you@gmail.com"
+                  autoComplete="off"
                   style={{ width: '100%', padding: '12px 40px 12px 14px', background: 'var(--bg3)', border: `1px solid ${form.email ? (isValidEmail(form.email) ? '#22c55e' : '#ef4444') : 'var(--border)'}`, borderRadius: 8, color: 'var(--text)', fontSize: 14, outline: 'none', transition: 'border-color 0.2s' }}
                 />
                 {form.email && <span style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', fontSize: 16 }}>{isValidEmail(form.email) ? '✅' : '❌'}</span>}
@@ -411,6 +412,7 @@ export default function Register({ onRegister, onGoLogin }) {
                 type="password" value={form.password}
                 onChange={e => set('password', e.target.value)}
                 placeholder="Min. 6 characters"
+                autoComplete="new-password"
                 style={{ width: '100%', padding: '12px 14px', background: 'var(--bg3)', border: `1px solid ${form.password ? strength.color : 'var(--border)'}`, borderRadius: 8, color: 'var(--text)', fontSize: 14, outline: 'none', transition: 'border-color 0.2s' }}
               />
               {form.password && (
@@ -431,6 +433,7 @@ export default function Register({ onRegister, onGoLogin }) {
                 onChange={e => set('confirm', e.target.value)}
                 placeholder="Repeat password"
                 onKeyDown={e => e.key === 'Enter' && submit()}
+                autoComplete="new-password"
                 style={{ width: '100%', padding: '12px 14px', background: 'var(--bg3)', border: `1px solid ${form.confirm ? (form.confirm === form.password ? '#22c55e' : '#ef4444') : 'var(--border)'}`, borderRadius: 8, color: 'var(--text)', fontSize: 14, outline: 'none', transition: 'border-color 0.2s' }}
               />
               {form.confirm && form.confirm !== form.password && <p style={{ fontSize: 11, color: '#ef4444', marginTop: 4 }}>Passwords do not match</p>}
@@ -490,7 +493,7 @@ export default function Register({ onRegister, onGoLogin }) {
                 })}
               </div>
             </div>
-          </div>
+          </form>
 
           <button
             onClick={submit} disabled={loading}
@@ -509,7 +512,7 @@ export default function Register({ onRegister, onGoLogin }) {
   )
 }
 
-function Field({ label, type, value, onChange, placeholder, onEnter }) {
+function Field({ label, type, value, onChange, placeholder, onEnter, autoComplete = 'off' }) {
   const [focused, setFocused] = useState(false)
   return (
     <div>
@@ -518,6 +521,7 @@ function Field({ label, type, value, onChange, placeholder, onEnter }) {
         type={type} value={value}
         onChange={e => onChange(e.target.value)}
         placeholder={placeholder}
+        autoComplete={autoComplete}
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
         onKeyDown={e => e.key === 'Enter' && onEnter?.()}
